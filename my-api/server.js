@@ -12,10 +12,10 @@ app.use(express.json());
 app.use(express.static("./public"));
 
 const users = [
-  { id: 1, name: "John", password: "P@ssw0rd", refresh: null },
-  { id: 2, name: "Tom", password: "P@ssw0rd", refresh: null },
-  { id: 3, name: "Chris", password: "P@ssw0rd", refresh: null },
-  { id: 4, name: "David", password: "P@ssw0rd", refresh: null },
+  { id: 1, email: "john@test.com", password: "P@ssw0rd", refresh: null },
+  { id: 2, email: "tom@test.com", password: "P@ssw0rd", refresh: null },
+  { id: 3, email: "chris@test.com", password: "P@ssw0rd", refresh: null },
+  { id: 4, email: "david@test.com", password: "P@ssw0rd", refresh: null },
 ];
 
 // Running server //
@@ -30,7 +30,7 @@ app
 
 const jwtGenerate = (user) => {
   const accessToken = jwt.sign(
-    { name: user.name, id: user.id },
+    { email: user.email, id: user.id },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: process.env.ACCESS_EXPIRES_IN, algorithm: "HS256" }
   );
@@ -40,7 +40,7 @@ const jwtGenerate = (user) => {
 
 const jwtRefreshTokenGenerate = (user) => {
   const refreshToken = jwt.sign(
-    { name: user.name, id: user.id },
+    { email: user.email, id: user.id },
     process.env.REFRESH_TOKEN_SECRET,
     { expiresIn: process.env.REFRESH_EXPIRES_IN, algorithm: "HS256" }
   );
@@ -91,7 +91,7 @@ app.post("/auth/login", (req, res) => {
   const { username, password } = req.body;
 
   //find user
-  const user = users.findIndex((e) => e.name === username);
+  const user = users.findIndex((e) => e.email === username);
   const validated = users[user]?.password === password;
 
   if (!username || user < 0 || !validated) {
@@ -111,7 +111,7 @@ app.post("/auth/login", (req, res) => {
 
 app.post("/auth/refresh", jwtRefreshTokenValidate, (req, res) => {
   const user = users.find(
-    (e) => e.id === req.user.id && e.name === req.user.name
+    (e) => e.id === req.user.id && e.email === req.user.email
   );
 
   const userIndex = users.findIndex((e) => e.refresh === req.user.token);
